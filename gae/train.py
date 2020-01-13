@@ -5,7 +5,7 @@ import time
 import os
 
 # Train on CPU (hide GPU) due to memory constraints
-os.environ['CUDA_VISIBLE_DEVICES'] = ""
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 
 import tensorflow as tf
 import numpy as np
