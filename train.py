@@ -35,9 +35,10 @@ flags.DEFINE_integer('features', 1, 'Whether to use features (1) or not (0).')
 
 model_str = FLAGS.model
 dataset_str = FLAGS.dataset
+feature_flag = FLAGS.features
 
 # Load data
-adj, features = load_data(dataset_str)
+adj, features = load_data(dataset_str, feature_flag)
 
 # Store original adjacency matrix (without diagonal entries) for later
 adj_orig = adj
@@ -46,9 +47,6 @@ adj_orig.eliminate_zeros()
 
 adj_train, train_edges, val_edges, val_edges_false, test_edges, test_edges_false = mask_test_edges(adj)
 adj = adj_train
-
-if FLAGS.features == 0:
-    features = sp.identity(features.shape[0])  # featureless
 
 # Some preprocessing
 adj_norm = preprocess_graph(adj)
