@@ -59,6 +59,7 @@ def mask_test_edges(adj):
         rows_close = np.all(np.round(a - b[:, None], tol) == 0, axis=-1)
         return np.any(rows_close)
 
+    # creates list of edges not in the original graph for link prediction testing
     test_edges_false = []
     while len(test_edges_false) < len(test_edges):
         idx_i = np.random.randint(0, adj.shape[0])
@@ -74,6 +75,7 @@ def mask_test_edges(adj):
                 continue
         test_edges_false.append([idx_i, idx_j])
 
+    # creates list of edges not in the original graph for link prediction validation
     val_edges_false = []
     while len(val_edges_false) < len(val_edges):
         idx_i = np.random.randint(0, adj.shape[0])

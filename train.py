@@ -19,6 +19,11 @@ from gae.input_data import load_data
 from gae.model import GCNModelAE, GCNModelVAE
 from gae.preprocessing import preprocess_graph, construct_feed_dict, sparse_to_tuple, mask_test_edges
 
+# EXPERIMENTAL
+import sys
+np.set_printoptions(threshold=sys.maxsize, linewidth=200)
+# /EXPERIMENTAL
+
 # Settings
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -39,6 +44,9 @@ feature_flag = FLAGS.features
 
 # Load data
 adj, features = load_data(dataset_str, feature_flag)
+# EXPERIMENTAL
+karate = adj
+# /EXPERIMENTAL
 
 # Store original adjacency matrix (without diagonal entries) for later
 adj_orig = adj
@@ -163,3 +171,11 @@ print("Optimization Finished!")
 roc_score, ap_score = get_roc_score(test_edges, test_edges_false)
 print('Test ROC score: ' + str(roc_score))
 print('Test AP score: ' + str(ap_score))
+
+# EXPERIMENTAL
+#print('karate', karate.todense())
+np.savetxt('data/' + dataset_str + '_' + model_str + '.mat', adj_orig.todense(), fmt='%d')
+#print('diff', np.abs(karate.todense() - adj.todense()) + np.abs(adj.todense() - karate.todense()))
+#print('adj_orig', adj_orig.todense())
+#print('diff_orig', np.abs(karate.todense() - adj_orig.todense()) + np.abs(adj_orig.todense() - karate.todense()))
+# /EXPERIMENTAL
