@@ -19,11 +19,6 @@ from gae.input_data import load_data
 from gae.model import GCNModelAE, GCNModelVAE
 from gae.preprocessing import preprocess_graph, construct_feed_dict, sparse_to_tuple, mask_test_edges
 
-# EXPERIMENTAL
-import sys
-np.set_printoptions(threshold=sys.maxsize, linewidth=200)
-# /EXPERIMENTAL
-
 # Settings
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -45,7 +40,7 @@ feature_flag = FLAGS.features
 # Load data
 adj, features = load_data(dataset_str, feature_flag)
 # EXPERIMENTAL
-karate = adj
+dataset = adj
 # /EXPERIMENTAL
 
 # Store original adjacency matrix (without diagonal entries) for later
@@ -152,7 +147,7 @@ for epoch in range(FLAGS.epochs):
     feed_dict = construct_feed_dict(adj_norm, adj_label, features, placeholders)
     feed_dict.update({placeholders['dropout']: FLAGS.dropout})
     # Run single weight update
-    outs = sess.run([opt.opt_op, opt.cost, opt.accuracy], feed_dict=feed_dict)
+    outs = sess.run([opt.opt_op, opt.cost, opt.accuracy, opt.preds_sub], feed_dict=feed_dict)
 
     # Compute average loss
     avg_cost = outs[1]
@@ -173,9 +168,11 @@ print('Test ROC score: ' + str(roc_score))
 print('Test AP score: ' + str(ap_score))
 
 # EXPERIMENTAL
-#print('karate', karate.todense())
-np.savetxt('data/' + dataset_str + '_' + model_str + '.mat', adj_orig.todense(), fmt='%d')
-#print('diff', np.abs(karate.todense() - adj.todense()) + np.abs(adj.todense() - karate.todense()))
-#print('adj_orig', adj_orig.todense())
-#print('diff_orig', np.abs(karate.todense() - adj_orig.todense()) + np.abs(adj_orig.todense() - karate.todense()))
+output = outs[3].reshape(dataset.shape)
+output[output > 0] = 1
+output[output <= 0] = 0
+np.savetxt('data/' + dataset_str + '_' + model_str + '.mat', output, fmt='%d')
+diff = np.abs(dataset.todense() - output) + np.abs(output - dataset.todense())
+diff = diff / 2
+print('diffsum: {}\t total: {}\tacc: {}'.format(diff.sum(), dataset.shape[0]**2, 1 - diff.sum()/(dataset.shape[0]**2)))
 # /EXPERIMENTAL
