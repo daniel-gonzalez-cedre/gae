@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import time
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Train on CPU (hide GPU) due to memory constraints
 os.environ['CUDA_VISIBLE_DEVICES'] = "0"
