@@ -169,11 +169,7 @@ print('Test ROC score: ' + str(roc_score))
 print('Test AP score: ' + str(ap_score))
 
 # EXPERIMENTAL
-output = outs[3].reshape(dataset.shape)
-output[output > 0] = 1
-output[output <= 0] = 0
+output = sess.run(tf.nn.sigmoid(outs[3])).reshape(dataset.shape)
+output = output >= np.ones(dataset.shape)*0.5
 np.savetxt('data/' + dataset_str + '_' + model_str + '.mat', output, fmt='%d')
-diff = np.abs(dataset.todense() - output) + np.abs(output - dataset.todense())
-diff = diff / 2
-print('diffsum: {}\t total: {}\tacc: {}'.format(diff.sum(), dataset.shape[0]**2, 1 - diff.sum()/(dataset.shape[0]**2)))
 # /EXPERIMENTAL
