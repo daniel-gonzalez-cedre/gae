@@ -14,6 +14,7 @@ import scipy.sparse as sp
 
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import average_precision_score
+from networkx import from_numpy_matrix
 
 from gae.optimizer import OptimizerAE, OptimizerVAE
 from gae.input_data import load_data
@@ -34,9 +35,19 @@ flags.DEFINE_string('model', 'gcn_ae', 'Model string.')
 flags.DEFINE_string('dataset', 'cora', 'Dataset string.')
 flags.DEFINE_integer('features', 1, 'Whether to use features (1) or not (0).')
 
+# EXPERIMENTAL
+flags.DEFINE_string('format', 'g', 'Output data format.')
+# /EXPERIMENTAL
+
 model_str = FLAGS.model
 dataset_str = FLAGS.dataset
 feature_flag = FLAGS.features
+# EXPERIMENTAL
+if FLAGS.format in ['g', 'mat']:
+    format_str = FLAGS.format
+else:
+    raise ValueError('\'{}\' is not a supported output format. Please use either \'g\' (default) or \'mat\'.'.format(FLAGS.format))
+# /EXPERIMENTAL
 
 # Load data
 adj, features = load_data(dataset_str, feature_flag)
@@ -171,5 +182,9 @@ print('Test AP score: ' + str(ap_score))
 # EXPERIMENTAL
 output = sess.run(tf.nn.sigmoid(outs[3])).reshape(dataset.shape)
 output = output >= np.ones(dataset.shape)*0.5
-np.savetxt('data/' + dataset_str + '_' + model_str + '.mat', output, fmt='%d')
+if format_str == 'mat':
+    np.savetxt('data/' + dataset_str + '_' + model_str + '.mat', output, fmt='%d')
+elif format_str == 'g':
+    output_g = np.asarray(from_numpy_matrix(output).edges())
+    np.savetxt('data/' + dataset_str + '_' + model_str + '.g',   output,   fmt='%d')
 # /EXPERIMENTAL
